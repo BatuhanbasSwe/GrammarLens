@@ -1,0 +1,71 @@
+{
+  "seed": 42,
+  "cleaning": {
+    "raw": 16622,
+    "kept": 10134,
+    "drop_length": 3438,
+    "drop_annotated_error": 1347,
+    "drop_caps": 130,
+    "drop_no_finite_verb": 1127,
+    "drop_url_email": 209,
+    "drop_duplicate": 237
+  },
+  "available_before_balancing": {
+    "dev": {
+      "CORRECT": 1086,
+      "DET": 312,
+      "NOUN_NUM": 311,
+      "PREP": 629,
+      "SVA": 705,
+      "VERB_FORM": 487,
+      "WORD_ORDER": 713
+    },
+    "test": {
+      "CORRECT": 1088,
+      "DET": 303,
+      "NOUN_NUM": 302,
+      "PREP": 638,
+      "SVA": 674,
+      "VERB_FORM": 514,
+      "WORD_ORDER": 705
+    },
+    "train": {
+      "CORRECT": 7960,
+      "DET": 2395,
+      "NOUN_NUM": 2287,
+      "PREP": 5191,
+      "SVA": 5021,
+      "VERB_FORM": 4056,
+      "WORD_ORDER": 5580
+    }
+  },
+  "final_per_class": {
+    "dev": {
+      "CORRECT": 311,
+      "DET": 311,
+      "NOUN_NUM": 311,
+      "PREP": 311,
+      "SVA": 311,
+      "VERB_FORM": 311,
+      "WORD_ORDER": 311
+    },
+    "test": {
+      "CORRECT": 302,
+      "DET": 302,
+      "NOUN_NUM": 302,
+      "PREP": 302,
+      "SVA": 302,
+      "VERB_FORM": 302,
+      "WORD_ORDER": 302
+    },
+    "train": {
+      "CORRECT": 2287,
+      "DET": 2287,
+      "NOUN_NUM": 2287,
+      "PREP": 2287,
+      "SVA": 2287,
+      "VERB_FORM": 2287,
+      "WORD_ORDER": 2287
+    }
+  }
+}
