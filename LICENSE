@@ -19,3 +19,40 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+-------------------------------------------------------------------------------
+
+DATA LICENSES
+
+The MIT License above covers the source code (src/, scripts/) and the
+documentation written by the GrammarLens team. It does NOT cover the data.
+The data in this repository is licensed as follows:
+
+1. data/raw/UD_English-EWT/
+   Universal Dependencies English Web Treebank (UD English-EWT),
+   https://github.com/UniversalDependencies/UD_English-EWT, commit 4a4d77f.
+   License: Creative Commons Attribution-ShareAlike 4.0 International
+   (CC BY-SA 4.0), https://creativecommons.org/licenses/by-sa/4.0/
+   The full license text is in data/raw/UD_English-EWT/LICENSE.txt.
+   Files are unmodified (verified by data/raw/checksums.txt).
+   Citation: Silveira et al. (2014), "A Gold Standard Dependency Corpus for
+   English", LREC 2014.
+
+2. data/processed/ (GrammarLens-EWT)
+   Derived from UD English-EWT by scripts/build_dataset.py. Changes: sentences
+   were filtered by cleaning rules, single grammatical errors were injected,
+   classes were balanced, and the files were converted to CSV
+   (see docs/preprocessing.md).
+   As required by the ShareAlike term of the source, this derived dataset is
+   released under CC BY-SA 4.0, https://creativecommons.org/licenses/by-sa/4.0/
+   The same applies to files in results/ that quote sentences from the
+   dataset (results/label_audit.csv, results/error_analysis.md).
+
+3. data/raw/blimp/
+   14 files of BLiMP: The Benchmark of Linguistic Minimal Pairs for English,
+   https://github.com/alexwarstadt/blimp, commit 3e56b06.
+   License: Creative Commons Attribution 4.0 International (CC BY 4.0),
+   https://creativecommons.org/licenses/by/4.0/
+   Files are unmodified (verified by data/raw/checksums.txt).
+   Citation: Warstadt et al. (2020), "BLiMP: The Benchmark of Linguistic
+   Minimal Pairs for English", TACL 8.
