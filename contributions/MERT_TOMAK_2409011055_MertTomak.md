@@ -2,6 +2,8 @@
 
 Student number: 2409011055
 
+GitHub: [MertTomak](https://github.com/MertTomak)
+
 ## 1. Work done and responsibilities
 
 My role in GrammarLens is data cleaning and preprocessing. Everyone else needs my output before training any model, so my work is the first link of the project chain.
