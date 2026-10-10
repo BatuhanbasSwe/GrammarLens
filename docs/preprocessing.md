@@ -82,27 +82,32 @@ Columns of `data/processed/train.csv`, `dev.csv` and `test.csv`: `id`, `sent_id`
 
 ## 5. Label check
 
-From the test set, 20 examples per class (140 in total) were sampled at random (`random_state=42`) and checked by hand. For each example one question was asked: is the sentence really as its label says? (For `CORRECT`: none of the 6 error types is present. For the other classes: an error of that type is present.) The error-free `source` sentence was used for comparison. The results are in `results/label_audit.csv` (column `label_dogru_mu`).
+From the test set, 20 examples per class (140 in total) were sampled at random (`random_state=42`) and checked by hand. The rule is simple: the error type in the label must really be present in the sentence (for `CORRECT`: none of the 6 error types is present). The error-free `source` sentence was used for comparison. The first pass found no wrong label; after the model error analysis (below) showed label noise, we did a **second full review of all 140 examples** with the same rule, and this second review marked 3 examples as wrong. The results are in `results/label_audit.csv` (column `label_dogru_mu`: `Doğru` = label is right, `Yanlış` = label is wrong; column `not` explains the borderline cases).
 
 | Class | Checked | Wrong labels | Rate |
 | --- | --- | --- | --- |
 | `CORRECT` | 20 | 0 | 0% |
-| `SVA` | 20 | 0 | 0% |
+| `SVA` | 20 | 1 | 5% |
 | `VERB_FORM` | 20 | 0 | 0% |
 | `DET` | 20 | 0 | 0% |
 | `NOUN_NUM` | 20 | 0 | 0% |
-| `PREP` | 20 | 0 | 0% |
+| `PREP` | 20 | 2 | 10% |
 | `WORD_ORDER` | 20 | 0 | 0% |
-| **Total** | **140** | **0** | **0%** |
+| **Total** | **140** | **3** | **2.1%** |
+
+The 3 wrong labels:
+
+- `SVA`: "I'm not fond of the Google-**hate**-privacy argument". It reads as a compound modifier, so there is no clear agreement error (borderline).
+- `PREP`: "The staff **at** Allentown are friendly…". It is natural English, so the preposition swap left the sentence correct.
+- `PREP`: "the team **for** barton car wash was very friendly". It is grammatical, so the swap left the sentence acceptable (borderline).
 
 **Limits of this result:**
 
-- The check was done by one person; there is no second annotator. The result reflects one person's judgment.
-- 20 examples per class is a small sample. "0 wrong labels" does not mean the true rate is zero. It only means no wrong label was found in these 140 examples.
-- In some `PREP` examples the sentence still sounds natural after the preposition change, so they are borderline. In this audit they were accepted as matching their label: "The staff **at** Allentown are friendly…", "the team **for** barton car wash…", "…a revised draft **by** the CDWR risk memo" and "…a friend out **at** Chicago…". One `SVA` example ("Google-**hate**-privacy argument") is also borderline, because it can be read as a compound modifier. A stricter judge could count these as wrong labels.
-- Since prepositions are replaced randomly, borderline cases are most expected in the `PREP` class.
+- The check was done by one annotator; the second review was AI-assisted. There is no independent second opinion, so the result reflects one judgment.
+- 20 examples per class is a small sample. "0 wrong labels" does not mean the true rate is zero, and "10%" for `PREP` is very uncertain.
+- Borderline cases were kept as correct labels: "a revised draft **by** the CDWR risk memo", "With their proposal **to** a "Earth-Moon" highway" and "a friend out **at** Chicago" (`PREP`). In four `DET` examples an article is missing in an informal style; they were counted as real `DET` errors. The `CORRECT` example "Good local steakhouse, I recommend it!" is a headline-style fragment and was kept as correct. A stricter or a more lenient judge would get different numbers.
 
-**Follow-up: evidence from the model error analysis.** After the DeBERTa-v3 predictions (seed 42) became available, we reviewed the 24 test sentences labeled `PREP` that the model predicted as `CORRECT` (details in `results/error_analysis.md`). In our reading, 13 of them are still grammatical after the preposition swap and 3 more are probably acceptable; only 2 look like real model misses. A similar pattern appears for `DET` (8 of the 13 `DET→CORRECT` sentences are still acceptable) and for `CORRECT` (10 of the 14 `CORRECT→DET` sentences contain an article problem in the original text). So the 0-of-20 result above is too optimistic for `PREP` and `DET`, and `CORRECT` is not perfectly clean either, because cleaning rule 1 only removes sentences that the treebank itself marks as typos. These sentences were selected because the model got them wrong, so they cannot be used to estimate the noise rate of a whole class; they are a lower bound on the noise the model exposed. The judgments come from one annotator with AI assistance and have no second opinion. We did not relabel or filter the data: all models were trained and tested on the dataset exactly as described in this document.
+**Follow-up: evidence from the model error analysis.** After the DeBERTa-v3 predictions (seed 42) became available, we reviewed the 24 test sentences labeled `PREP` that the model predicted as `CORRECT` (details in `results/error_analysis.md`). In our reading, 13 of them are still grammatical after the preposition swap and 3 more are probably acceptable; only 2 look like real model misses. A similar pattern appears for `DET` (8 of the 13 `DET→CORRECT` sentences are still acceptable) and for `CORRECT` (10 of the 14 `CORRECT→DET` sentences contain an article problem in the original text). This is much more noise than the random sample above shows (2 of 20 for `PREP`, 0 of 20 for `DET`), so the random audit probably understates the noise in `PREP` and `DET`, and `CORRECT` is not perfectly clean either, because cleaning rule 1 only removes sentences that the treebank itself marks as typos. The model-error sentences were selected because the model got them wrong, so they cannot be used to estimate the noise rate of a whole class; they are a lower bound on the noise the model exposed. We did not relabel or filter the data: all models were trained and tested on the dataset exactly as described in this document.
 
 ## 6. Limitations
 
