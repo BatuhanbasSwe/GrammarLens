@@ -102,13 +102,15 @@ From the test set, 20 examples per class (140 in total) were sampled at random (
 - In some `PREP` examples the sentence still sounds natural after the preposition change, so they are borderline. In this audit they were accepted as matching their label: "The staff **at** Allentown are friendly…", "the team **for** barton car wash…", "…a revised draft **by** the CDWR risk memo" and "…a friend out **at** Chicago…". One `SVA` example ("Google-**hate**-privacy argument") is also borderline, because it can be read as a compound modifier. A stricter judge could count these as wrong labels.
 - Since prepositions are replaced randomly, borderline cases are most expected in the `PREP` class.
 
+**Follow-up: evidence from the model error analysis.** After the DeBERTa-v3 predictions (seed 42) became available, we reviewed the 24 test sentences labeled `PREP` that the model predicted as `CORRECT` (details in `results/error_analysis.md`). In our reading, 13 of them are still grammatical after the preposition swap and 3 more are probably acceptable; only 2 look like real model misses. A similar pattern appears for `DET` (8 of the 13 `DET→CORRECT` sentences are still acceptable) and for `CORRECT` (10 of the 14 `CORRECT→DET` sentences contain an article problem in the original text). So the 0-of-20 result above is too optimistic for `PREP` and `DET`, and `CORRECT` is not perfectly clean either, because cleaning rule 1 only removes sentences that the treebank itself marks as typos. These sentences were selected because the model got them wrong, so they cannot be used to estimate the noise rate of a whole class; they are a lower bound on the noise the model exposed. The judgments come from one annotator with AI assistance and have no second opinion. We did not relabel or filter the data: all models were trained and tested on the dataset exactly as described in this document.
+
 ## 6. Limitations
 
 - The errors are produced by a script, not written by real learners. Real errors are more diverse.
 - Every sentence contains at most one error. Sentences with several errors are not in the dataset.
 - `NOUN_NUM` errors are not generated on subjects.
 - Erroneous sentences are corrupted versions of real sentences, while `CORRECT` is the original text.
-- The `PREP` class may contain label noise (Section 5).
+- The `PREP` and `DET` classes contain label noise (an injected edit sometimes leaves a natural sentence), and `CORRECT` contains some original sentences with article errors (Section 5 and `results/error_analysis.md`).
 
 ## 7. Reproducing the data
 
