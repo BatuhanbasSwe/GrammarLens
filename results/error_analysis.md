@@ -1,6 +1,6 @@
 # Error Analysis: DeBERTa-v3 (seed 42)
 
-This analysis looks at the test-set mistakes of DeBERTa-v3 (`results/preds/deberta-v3_seed42.csv`, 2,114 test examples, 101 wrong). It covers **seed 42 only**; seed 2026 was still running when this was written.
+This analysis looks at the test-set mistakes of DeBERTa-v3 (`results/preds/deberta-v3_seed42.csv`, 2,114 test examples, 101 wrong). It covers **seed 42 only**; the predictions of the other seeds are in `results/preds/` and were not reviewed here.
 
 **Scope and method.** We reviewed the three largest confusion pairs, 51 of the 101 errors: `PREP → CORRECT` (24), `DET → CORRECT` (13) and `CORRECT → DET` (14). The other 50 errors were not reviewed. For each sentence we compared the model input with the error-free `source` sentence and judged whether the label is right. The judgments were made by **one annotator with AI assistance**, are subjective, and have no second opinion. Borderline cases are marked as such. Appendix A lists 20 representative sentences.
 

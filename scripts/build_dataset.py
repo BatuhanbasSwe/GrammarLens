@@ -310,7 +310,7 @@ def main():
     for split in ["train", "dev", "test"]:
         part = df[df.split == split].drop(columns="split").sample(frac=1, random_state=SEED).reset_index(drop=True)
         part.insert(0, "id", [f"{split}-{i:05d}" for i in range(len(part))])
-        part.to_csv(OUT / f"{split}.csv", index=False)
+        part.to_csv(OUT / f"{split}.csv", index=False, lineterminator="\n")
 
     final = df.groupby(["split", "label"]).size().unstack(0).fillna(0).astype(int).to_dict()
     (OUT / "stats.json").write_text(json.dumps({"seed": SEED, "cleaning": dict(stats),

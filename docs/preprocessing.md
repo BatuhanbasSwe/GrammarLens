@@ -82,7 +82,7 @@ Columns of `data/processed/train.csv`, `dev.csv` and `test.csv`: `id`, `sent_id`
 
 ## 5. Label check
 
-From the test set, 20 examples per class (140 in total) were sampled at random (`random_state=42`) and checked by hand. The rule is simple: the error type in the label must really be present in the sentence (for `CORRECT`: none of the 6 error types is present). The error-free `source` sentence was used for comparison. The first pass found no wrong label; after the model error analysis (below) showed label noise, we did a **second full review of all 140 examples** with the same rule, and this second review marked 3 examples as wrong. The results are in `results/label_audit.csv` (column `label_dogru_mu`: `Doğru` = label is right, `Yanlış` = label is wrong; column `not` explains the borderline cases).
+From the test set, 20 examples per class (140 in total) were sampled at random (`random_state=42`) and checked by hand. The rule is simple: the error type in the label must really be present in the sentence (for `CORRECT`: none of the 6 error types is present). The error-free `source` sentence was used for comparison. The first pass found no wrong label; after the model error analysis (below) showed label noise, we did a **second full review of all 140 examples** with the same rule, and this second review marked 3 examples as wrong. The results are in `results/label_audit.csv` (column `label_correct`: `yes` = label is right, `no` = label is wrong; column `note` explains the borderline cases).
 
 | Class | Checked | Wrong labels | Rate |
 | --- | --- | --- | --- |
