@@ -13,6 +13,9 @@ from sklearn.metrics import f1_score
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
 
+from evaluate_blimp import evaluate_blimp
+from metrics import save_predictions, save_result_json
+
 LABELS = ["CORRECT", "SVA", "VERB_FORM", "DET", "NOUN_NUM", "PREP", "WORD_ORDER"]
 LABEL_TO_ID = {name: i for i, name in enumerate(LABELS)}
 PAD_ID = 0
@@ -135,25 +138,53 @@ def train(args, device):
     return model, vocab, best_epoch, best_f1
 
 
-def final_test(model, vocab, args, device):
-    test_df, test_ids, test_labels = load_split("test", vocab, args.max_len)
-    pred = predict_logits(model, test_ids, device).argmax(dim=1).numpy()
-    test_f1 = f1_score(test_labels.numpy(), pred, average="macro")
-    print(f"test_macro_f1 {test_f1:.4f}")
+def hardware_description(device):
+    if device.type == "cuda":
+        return f"GPU ({torch.cuda.get_device_name(0)})"
+    return "CPU"
 
-    out_dir = ROOT / "results" / "preds"
-    out_dir.mkdir(parents=True, exist_ok=True)
-    out = pd.DataFrame(
-        {"id": test_df["id"], "label": test_df["label"], "pred": [LABELS[i] for i in pred]}
+
+def final_test(model, vocab, args, device, train_time_sec):
+    test_df, test_ids, _ = load_split("test", vocab, args.max_len)
+    pred = predict_logits(model, test_ids, device).argmax(dim=1).numpy()
+    pred_labels = [LABELS[i] for i in pred]
+    true_labels = test_df["label"].tolist()
+
+    blimp = evaluate_blimp(
+        lambda sentences: predict_proba(model, vocab, sentences, device, args.max_len),
+        probability_class_order=LABELS,
+        blimp_dir=ROOT / "data" / "raw" / "blimp",
     )
-    out.to_csv(out_dir / f"cnn_seed{args.seed}.csv", index=False)
-    return pred
+
+    save_predictions(
+        ids=test_df["id"].tolist(),
+        y_true=true_labels,
+        y_pred=pred_labels,
+        model="cnn",
+        seed=args.seed,
+        results_dir=ROOT / "results",
+    )
+    result_path = save_result_json(
+        model="cnn",
+        seed=args.seed,
+        y_true=true_labels,
+        y_pred=pred_labels,
+        blimp=blimp,
+        train_time_sec=train_time_sec,
+        hardware=hardware_description(device),
+        results_dir=ROOT / "results",
+    )
+    test_f1 = f1_score(true_labels, pred_labels, average="macro")
+    print(f"test_macro_f1 {test_f1:.4f}")
+    print(f"blimp_pair_accuracy {blimp['pair_accuracy']['overall']:.4f}")
+    print(f"blimp_type_accuracy {blimp['type_accuracy']['overall']:.4f}")
+    print(f"saved {result_path}")
 
 
 def parse_args():
     p = argparse.ArgumentParser()
     p.add_argument("--seed", type=int, default=42)
-    p.add_argument("--epochs", type=int, default=10)
+    p.add_argument("--epochs", type=int, default=30)
     p.add_argument("--lr", type=float, default=1e-3)
     p.add_argument("--batch_size", type=int, default=64)
     p.add_argument("--emb_dim", type=int, default=100)
@@ -173,10 +204,11 @@ def main():
 
     start = time.time()
     model, vocab, best_epoch, best_f1 = train(args, device)
-    print(f"train_time_sec {time.time() - start:.1f}")
+    train_time_sec = time.time() - start
+    print(f"train_time_sec {train_time_sec:.1f}")
 
     if args.final:
-        final_test(model, vocab, args, device)
+        final_test(model, vocab, args, device, train_time_sec)
 
 
 if __name__ == "__main__":
