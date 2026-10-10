@@ -3,6 +3,7 @@ pandas>=2.0
 # classical baselines (NB / LR / SVM)
 scikit-learn>=1.3
 # neural models (BiLSTM, DistilBERT, DeBERTa-v3, ModernBERT) - install torch first, see README
+torch>=2.0
 transformers>=4.48
 sentencepiece
 accelerate
