@@ -112,15 +112,15 @@ All numbers below come from `results/cnn_seed*.json`, `results/nb_seed42.json` a
 
 | Metric | Seed 13 | Seed 42 | Seed 2026 | Mean ± std |
 | --- | --- | --- | --- | --- |
-| Macro-F1 | 0.5363 | 0.5468 | 0.5585 | 0.5472 ± 0.0111 |
-| Accuracy | 0.5421 | 0.5468 | 0.5596 | 0.5495 ± 0.0091 |
-| Macro precision | 0.5389 | 0.5540 | 0.5681 | 0.5537 ± 0.0146 |
-| Macro recall | 0.5421 | 0.5468 | 0.5596 | 0.5495 ± 0.0091 |
+| Macro-F1 | 0.5363 | 0.5468 | 0.5585 | 0.5472 ± 0.0090 |
+| Accuracy | 0.5421 | 0.5468 | 0.5596 | 0.5495 ± 0.0074 |
+| Macro precision | 0.5389 | 0.5540 | 0.5681 | 0.5537 ± 0.0119 |
+| Macro recall | 0.5421 | 0.5468 | 0.5596 | 0.5495 ± 0.0074 |
 | Best dev macro-F1 | 0.5459 | 0.5489 | 0.5576 | |
 | Best epoch | 30 | 30 | 30 | |
 | Training time (s) | 51.1 | 51.6 | 50.9 | |
 
-The standard deviation is the sample standard deviation over the 3 seeds. Hardware: GPU (Tesla T4). Bootstrap confidence intervals are Görkem's part and are not computed here.
+The standard deviation is the population standard deviation over the 3 seeds (`statistics.pstdev`), the same definition as in `results/benchmark.csv`. Hardware: GPU (Tesla T4). The bootstrap 95% confidence interval for the macro-F1 is computed by Görkem in `results/benchmark.csv`: 0.5304 to 0.5629.
 
 ### Per-class F1 on the test split: CNN vs Naive Bayes
 
@@ -141,12 +141,12 @@ Naive Bayes is a single run (`results/nb_seed42.json`); it gives the same result
 
 | Metric | CNN (mean ± std) | Naive Bayes |
 | --- | --- | --- |
-| Pair accuracy, overall | 0.4835 ± 0.0187 | 0.4442 |
-| Pair accuracy, `SVA` | 0.4596 ± 0.0047 | 0.4740 |
-| Pair accuracy, `NOUN_NUM` | 0.5014 ± 0.0307 | 0.4219 |
-| Type accuracy, overall | 0.2482 ± 0.0226 | 0.2681 |
-| Type accuracy, `SVA` | 0.1636 ± 0.0152 | 0.1625 |
-| Type accuracy, `NOUN_NUM` | 0.3116 ± 0.0281 | 0.3474 |
+| Pair accuracy, overall | 0.4835 ± 0.0153 | 0.4442 |
+| Pair accuracy, `SVA` | 0.4596 ± 0.0038 | 0.4740 |
+| Pair accuracy, `NOUN_NUM` | 0.5014 ± 0.0250 | 0.4219 |
+| Type accuracy, overall | 0.2482 ± 0.0184 | 0.2681 |
+| Type accuracy, `SVA` | 0.1636 ± 0.0124 | 0.1625 |
+| Type accuracy, `NOUN_NUM` | 0.3116 ± 0.0230 | 0.3474 |
 
 Pair accuracy asks whether the model gives the correct sentence a higher `CORRECT` probability than the wrong one (chance is 0.50). Type accuracy asks whether the predicted class of the wrong sentence is the class mapped to that BLiMP file (random guessing among 7 classes would give about 0.14). The CNN is close to chance level on pair accuracy and does not transfer to BLiMP in a useful way; it is not clearly better than Naive Bayes there.
 
@@ -186,7 +186,7 @@ The sentences without errors that the CNN does not recognise are spread over all
 
 ### Summary: CNN vs Naive Bayes
 
-The CNN is better than Naive Bayes on every error type: macro-F1 rises from 0.298 to 0.547 on average over 3 seeds (std about 0.011). The biggest jump is in `WORD_ORDER` (F1 0.197 to 0.660): Naive Bayes counts single words and cannot see their order, while the CNN reads windows of 3 to 5 neighbouring words. `SVA` (0.345 to 0.618), `VERB_FORM` (0.349 to 0.599) and `NOUN_NUM` (0.422 to 0.662) also improve clearly.
+The CNN is better than Naive Bayes on every error type: macro-F1 rises from 0.298 to 0.547 on average over 3 seeds (std about 0.009). The biggest jump is in `WORD_ORDER` (F1 0.197 to 0.660): Naive Bayes counts single words and cannot see their order, while the CNN reads windows of 3 to 5 neighbouring words. `SVA` (0.345 to 0.618), `VERB_FORM` (0.349 to 0.599) and `NOUN_NUM` (0.422 to 0.662) also improve clearly.
 
 The CNN still struggles most with `CORRECT` (F1 0.339) and `PREP` (F1 0.419). On `SVA`, the error rate grows with the distance between subject and verb, from about 33% when they are adjacent to about 62-77% when more than 3 words separate them (only 13 sentences). It also stays near chance level on the external BLiMP test (pair accuracy 0.46 to 0.50).
 
@@ -195,7 +195,7 @@ Example for "what the CNN cannot see": `...fundamentalists opposed to the US pre
 ## 7. Problems, gaps and suggestions
 
 - **BLiMP stays near chance.** Pair accuracy is 0.46 to 0.50 for every seed. I did not test why; it may be the difference between the BLiMP template sentences and our real web sentences, but this is not measured.
-- **The best epoch was the last one (30) in all three final runs.** Dev macro-F1 was still rising very slowly. I did not raise the limit again after seeing the test results, since that would be tuning on the test split. A longer schedule could be tested on dev in the future.
+- **The best epoch was the last one (30) in all three final runs, so "is 30 epochs enough?" is a fair question.** The dev macro-F1 was still rising, but slowly: for seed 42 it was 0.5128 at epoch 10, 0.5324 at epoch 20 and 0.5489 at epoch 30; for seed 2026 it was 0.4992, 0.5400 and 0.5576. The training loss was still falling as well. So training had flattened but had not clearly converged, and I did not run beyond 30 epochs: the results were frozen on Sunday 14:00, and raising the limit after seeing the test results would also be tuning on the test split. The earlier 30-epoch dev run (seed 13, before the deterministic setting) peaked at epoch 27 and then stayed on a plateau, which is the only evidence about longer training. The final numbers may therefore slightly underestimate what the CNN could reach with a longer schedule.
 - **Low `CORRECT` F1 (0.339).** Measured: the CNN finds only 32-37% of the correct sentences and sends the rest to the error classes, and only about a third of its `CORRECT` predictions are right (table in Section 6). The reason behind this pattern was not tested.
 - **`PREP` label noise.** Mert's data document notes that after a preposition is replaced the sentence sometimes still sounds natural, so part of the low `PREP` score may come from noisy labels. I did not measure how much.
 - **Long-distance analysis is small and correlational.** Only 13 sentences lie beyond the window, and the distance is measured on the injected verb. A few injected errors are borderline in colloquial English, which may count as a model mistake.
